@@ -35,3 +35,5 @@ substr(this.raw.content, 1 , 100)
 this.content.corredores <- fromJSON(this.raw.content)
 
 print(this.content.corredores)
+
+## FONTE https://www.r-bloggers.com/accessing-apis-from-r-and-a-little-r-programming/

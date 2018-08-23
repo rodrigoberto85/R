@@ -1,0 +1,37 @@
+# LISTAR CORREDORES
+
+library(httr)
+library(jsonlite)
+library(lubridate)
+library(ROAuth)
+
+#Autenticar API Olho Vivo
+urlauth <- "http://api.olhovivo.sptrans.com.br/v2.1/Login/Autenticar?token=86e33e757e98149c3c7a22a5fcae50d51f66599ddc3b6fd0ccd98766f6b79625"
+
+
+url <- "http://api.olhovivo.sptrans.com.br/v2.1"
+
+
+corredor <- "/Corredor"
+
+POST(url = urlauth)
+
+
+raw.result <- GET(url = "http://api.olhovivo.sptrans.com.br/v2.1/Corredor")
+
+names(raw.result)
+
+raw.result$status_code
+
+head(raw.result$content)
+
+
+this.raw.content <- rawToChar(raw.result$content)
+
+nchar(this.raw.content)
+
+substr(this.raw.content, 1 , 100)
+
+this.content.corredores <- fromJSON(this.raw.content)
+
+print(this.content.corredores)

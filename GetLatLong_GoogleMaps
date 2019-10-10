@@ -5,7 +5,7 @@ install.packages("ggmap")
 #load ggmap
 library(ggmap)
 
-register_google(key = "AIzaSyDMBwqD-VFyQuCaJaOFuIkNGGDj_EpiYvI")
+register_google(key = "GoogleKey")
 
 # Select the file from the file chooser
 fileToLoad <- file.choose(new = TRUE)

@@ -1,0 +1,119 @@
+#Analysis Distances covered by each bus line in the city of São Paulo/Brasil
+#Using R language
+#Dataset GTFS - SPTRANS
+#What is GTFS?
+#GTFS - General Transit Feed Specification
+#It is a specification that defines a format
+#for exchanging static transport information. 
+#https://gtfs.org
+#Files GFFS SPTRANS
+#São Paulo GTFS files could be obtained in SPtrans website
+#or could be acquired https://transitfeeds.com
+# https://transitfeeds.com/p/sptrans/1049 for São Paulo
+#agency.txt 
+#Transit agencies with service represented in this dataset.
+
+#calendar.txt 
+#Service dates specified using a weekly schedule with start and end dates. 
+#This file is required unless all dates of service are defined in calendar_dates.txt.
+
+#fare_attributes.txt 
+#Fare information for a transit agency's routes.
+
+#fare_rules.txt
+#Rules to apply fares for itineraries.
+
+#frequencies.txt
+#Headway (time between trips) for headway-based service or a compressed
+#representation of fixed-schedule service.
+
+#routes.txt
+#Transit routes. A route is a group of trips that 
+#are displayed to riders as a single service.
+
+#shapes.txt
+#Rules for mapping vehicle travel paths, 
+#sometimes referred to as route alignments.
+
+#stop_times.txt
+#Times that a vehicle arrives at and departs from stops for each trip.
+
+#stops.txt
+#Stops where vehicles pick up or drop off riders. 
+#Also defines stations and station entrances.
+
+
+#trips.txt
+#Trips for each route. A trip is a sequence of two 
+#or more stops that occur during a specific time period.
+
+
+#Library
+library(dplyr)
+# Data Preparation
+#Load Files
+# t = trips.txt
+# r = routes.txt
+# s = shapes.txt
+
+t <- read.csv("Desktop/dtsci/26052019-gtfs_sptrans/trips.txt", stringsAsFactors = FALSE, sep = ",")
+
+r <- read.csv("Desktop/dtsci/26052019-gtfs_sptrans/routes.txt", stringsAsFactors = FALSE, sep = ",")
+
+s <- read.csv("Desktop/dtsci/26052019-gtfs_sptrans/shapes.txt", stringsAsFactors = FALSE, sep = ",")
+
+# Merge or join files to prepare dataset
+
+sp_bus_distances <- merge(t, r, by = "route_id")
+sp_bus_distances <- merge(sp_bus_distances, s, by = "shape_id")
+
+#Dataset contain subway(1) and railway(2) and bus(3) route type information, 
+#selecting just bus information
+
+sp_bus_distances <- subset(sp_bus_distances, route_type == 3) 
+
+# Apply group by to be possible extract maximum distance traveled by each bus line
+#trip buses line field = trip_id
+#distance field = shape_dist_traveled(m) 
+
+sp_bus_distances <- sp_bus_distances %>% group_by(trip_id)
+sp_bus_distances <- sp_bus_distances %>% filter(shape_dist_traveled == max(shape_dist_traveled))
+
+
+#Clear dataset with columns with interest
+
+sp_bus_distances <- unique(subset(sp_bus_distances[,c("trip_id","route_id", "route_long_name","direction_id","shape_dist_traveled","route_type")]))
+
+#Visualize some information from dataset
+#greater distance traveled by a line in (m)
+greater_distance <- subset(sp_bus_distances, (shape_dist_traveled == max(shape_dist_traveled)) )
+
+print(greater_distance)
+#shortest distance traveled by a line (m)
+shortest_distance <- subset(sp_bus_distances, (shape_dist_traveled == min(shape_dist_traveled)) )
+
+print(shortest_distance)
+
+#AVG traveled distance by buses
+
+mean(sp_bus_distances$shape_dist_traveled)
+
+# Histogram of distance traveled of São Paulo bus service
+
+d <- sp_bus_distances$shape_dist_traveled/1000
+m <- mean(d)
+
+std <- sqrt(var(d))
+
+hist(d, 
+     xlab="km",  
+     main="São Paulo bus distances traveled histogram",
+     col = ("#062C3A") )
+
+#Histogram + normal distribution
+hist(d, prob = TRUE, 
+     xlab="km",  
+     main="São Paulo bus distances traveled histogram",
+     col = ("#062C3A") )
+curve(dnorm(x, mean=m, sd=std), 
+      col="#abc022", add=TRUE, yaxt="n")
